@@ -7,9 +7,9 @@ It works with ROM images. To use it, you must specify the name of the ROM follow
 For games that contain 2 separate banks for music and sound effects, you must run the program 2 times specifying where each different bank is located. However, in order to prevent files from being overwritten, the MIDI files from the previous bank must either be moved to a separate folder or renamed.
 
 Examples:
-* MC2MID "Kirby's Dream Land (UE) [!].gb" 6
-* MC2MID "Ghostbusters II (UE) [!].gb" 8
-* MC2MID "Adventures of Lolo (U) [S][!].gb" 10
+* HAL2MID "Kirby's Dream Land (UE) [!].gb" 6
+* HAL2MID "Ghostbusters II (UE) [!].gb" 8
+* HAL2MID "Adventures of Lolo (U) [S][!].gb" 10
 
 This tool was based on my own reverse-engineering of the sound engine. As usual, a TXT "prototype" application, HAL2TXT, is also included.
 
