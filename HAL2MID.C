@@ -52,6 +52,7 @@ const char MagicBytesB[4] = { 0x19, 0x19, 0x2A, 0x5F };
 const char MagicBytesC[5] = { 0xC9, 0x58, 0x16, 0x00, 0x21 };
 const char MagicBytesD[4] = { 0x4F, 0x06, 0x00, 0x21 };
 const char firstNoteTable[6] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
+const char altNoteTable[8] = { 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x01, 0x02 };
 const char segSearch[5] = { 0x86, 0x5F, 0x16, 0x00, 0x21 };
 const char gb2Notes[] = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
 						 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
@@ -228,8 +229,18 @@ int main(int args, char* argv[])
 				bankAmt = 0;
 			}
 			fseek(rom, ((bank - 1) * bankSize), SEEK_SET);
-			romData = (unsigned char*)malloc(bankSize);
-			fread(romData, 1, bankSize, rom);
+
+			if (bank != 1)
+			{
+				romData = (unsigned char*)malloc(bankSize);
+				fread(romData, 1, bankSize, rom);
+			}
+			else if (bank == 1)
+			{
+				romData = (unsigned char*)malloc(bankSize * 2);
+				fread(romData, 1, bankSize * 2, rom);
+			}
+
 
 			/*Also copy data from bank 1 or the previous bank since some games store important data there*/
 
@@ -331,6 +342,28 @@ int main(int args, char* argv[])
 					for (i = 0; i < bankSize; i++)
 					{
 						if ((!memcmp(&romData[i], firstNoteTable, 6)) && romData[i + 8] != 0xFF)
+						{
+							noteTableOffset = i + bankAmt;
+							break;
+						}
+					}
+				}
+
+				/*Fix for Othello/Othello World and Shanghai*/
+				if (bank == 1)
+				{
+					for (i = 0; i < bankSize * 2; i++)
+					{
+						if ((!memcmp(&romData[i], firstNoteTable, 6)) && i > 0x4000)
+						{
+							noteTableOffset = i + bankAmt;
+							break;
+						}
+					}
+
+					for (i = 0; i < bankSize * 2; i++)
+					{
+						if ((!memcmp(&romData[i], altNoteTable, 8)) && (romData[i - 1] == 0x3A || romData[i - 1] == 0x39 || romData[i - 1] == 0x42))
 						{
 							noteTableOffset = i + bankAmt;
 							break;
@@ -553,6 +586,8 @@ void song2mid(int songNum, long ptr)
 	int hasPlayedNote = 0;
 	int inMacro = 0;
 
+	midPos = 0;
+	ctrlMidPos = 0;
 	int rest = 0;
 	long tempLoopPt = 0;
 	long segPtr = 0;
@@ -561,8 +596,6 @@ void song2mid(int songNum, long ptr)
 	unsigned char lowNibble = 0;
 	unsigned char highNibble = 0;
 
-	midPos = 0;
-	ctrlMidPos = 0;
 	midLength = 0x10000;
 	midData = (unsigned char*)malloc(midLength);
 
