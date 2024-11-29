@@ -20,7 +20,10 @@ Supported games:
   * Kirby's Dream Land 2
   * Kirby's Pinball Land
   * Kirby's Star Stacker
+  * Othello
+  * Othello World
   * Pinball: Revenge of the 'Gator
+  * Shanghai
   * Trax
   * Vegas Stakes
 
